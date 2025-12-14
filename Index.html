@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>11-STEM by J1b</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+
+    <!-- CSS Variables for Theming -->
+    <style>
+        :root {
+            /* Default: Teal/Cyan */
+            --primary: 45 212 191;   
+            --secondary: 6 182 212;  
+            --bg-body: 248 250 252;
+            --bg-card: 255 255 255;
+            --text-main: 15 23 42;
+        }
+
+        /* Dark Mode overrides */
+        .dark {
+            --bg-body: 15 23 42;
+            --bg-card: 30 41 59;
+            --text-main: 241 245 249;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: rgb(var(--bg-body));
+            color: rgb(var(--text-main));
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* Dynamic Tailwind Colors */
+        .text-primary { color: rgb(var(--primary)); }
+        .bg-primary { background-color: rgb(var(--primary)); }
+        .border-primary { border-color: rgb(var(--primary)); }
+        .bg-primary-20 { background-color: rgba(var(--primary), 0.2); }
+        .bg-card { background-color: rgb(var(--bg-card)); }
+
+        /* Animation for View Switching */
+        .view-section {
+            display: none;
+            animation: fadeIn 0.3s ease-out;
+        }
+        .view-section.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Gradient Text */
+        .brand-gradient {
+            background: linear-gradient(to right, rgb(var(--primary)), rgb(var(--secondary)));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        /* Sub-tab styling in Subject View */
+        .sub-tab.active {
+            border-bottom: 2px solid rgb(var(--primary));
+            color: rgb(var(--primary));
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col pb-20">
+
+    <!-- TOP NAVIGATION -->
+    <nav class="sticky top-0 z-50 bg-card shadow-sm border-b border-gray-100 dark:border-gray-800 transition-colors duration-300">
+        <div class="max-w-md mx-auto px-4 h-16 flex justify-between items-center">
+            <!-- Logo -->
+            <div class="font-bold text-xl tracking-tight">
+                <span class="brand-gradient">11-STEM by J1b</span>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <!-- Theme Picker -->
+                <button onclick="toggleThemeModal()" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+                    <i class="fas fa-palette text-secondary text-lg"></i>
+                </button>
+                <!-- Dark Mode -->
+                <button id="dark-mode-toggle" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+                    <i class="fas fa-moon text-secondary text-lg" id="dark-mode-icon"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="flex-grow max-w-md mx-auto w-full px-4 py-6 relative">
+
+        <!-- VIEW 1: OVERVIEW (Description) -->
+        <section id="view-overview" class="view-section active">
+            <header class="mb-6 text-center">
+                <div class="w-20 h-20 bg-primary-20 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl text-primary">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+                <h1 class="text-3xl font-bold mb-2">Welcome Class!</h1>
+                <p class="opacity-70 text-sm">Official tracker for 11-STEM J1b</p>
+            </header>
+
+            <div class="bg-card p-6 rounded-2xl shadow-sm border-l-4 border-primary mb-6">
+                <h3 class="font-bold text-lg mb-2">Purpose of this Tracker</h3>
+                <p class="opacity-80 leading-relaxed text-sm">
+                    This website serves as a central hub for our class. Check the <b>Subjects</b> tab for lessons, downloadable documents, and upcoming activities. Check <b>Updates</b> for announcements from the class representative.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <button onclick="switchView('subjects')" class="bg-card p-4 rounded-xl shadow-sm hover:shadow-md transition text-center border border-gray-100 dark:border-gray-700">
+                    <i class="fas fa-book text-2xl text-primary mb-2"></i>
+                    <div class="font-bold text-sm">Browse Subjects</div>
+                </button>
+                <button onclick="switchView('updates')" class="bg-card p-4 rounded-xl shadow-sm hover:shadow-md transition text-center border border-gray-100 dark:border-gray-700">
+                    <i class="fas fa-bell text-2xl text-secondary mb-2"></i>
+                    <div class="font-bold text-sm">Latest News</div>
+                </button>
+            </div>
+        </section>
+
+        <!-- VIEW 2: SUBJECTS LIST -->
+        <section id="view-subjects" class="view-section">
+            <h2 class="text-2xl font-bold mb-6">Class Subjects</h2>
+
+            <!-- Core Subjects Group -->
+            <div class="mb-6">
+                <h3 class="text-xs font-bold uppercase tracking-wider opacity-50 mb-3 ml-1">Core Subjects</h3>
+                <div id="core-list" class="space-y-3">
+                    <!-- JS Injects Here -->
+                </div>
+            </div>
+
+            <!-- Applied Group -->
+            <div class="mb-20">
+                <h3 class="text-xs font-bold uppercase tracking-wider opacity-50 mb-3 ml-1">Applied & Specialized</h3>
+                <div id="applied-list" class="space-y-3">
+                    <!-- JS Injects Here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 2.5: SUBJECT DETAILS (Hidden by default) -->
+        <section id="view-details" class="view-section">
+            <!-- Back Button Header -->
+            <button onclick="closeDetails()" class="flex items-center text-sm font-bold opacity-70 mb-4 hover:text-primary transition">
+                <i class="fas fa-arrow-left mr-2"></i> Back to List
+            </button>
+
+            <!-- Subject Title -->
+            <header class="mb-6">
+                <h1 id="detail-title" class="text-2xl font-bold leading-tight brand-gradient">Subject Name</h1>
+                <span id="detail-category" class="text-xs font-mono bg-primary-20 px-2 py-1 rounded text-primary mt-2 inline-block">Core</span>
+            </header>
+
+            <!-- Sub Navigation Tabs -->
+            <div class="flex border-b border-gray-200 dark:border-gray-700 mb-6">
+                <button onclick="switchSubTab('overview')" id="tab-overview" class="sub-tab active flex-1 pb-3 text-sm text-center transition">Overview</button>
+                <button onclick="switchSubTab('lessons')" id="tab-lessons" class="sub-tab flex-1 pb-3 text-sm text-center transition">Lessons</button>
+                <button onclick="switchSubTab('activities')" id="tab-activities" class="sub-tab flex-1 pb-3 text-sm text-center transition">Activities</button>
+            </div>
+
+            <!-- Sub Content: Overview -->
+            <div id="content-overview" class="sub-content">
+                <p id="detail-description" class="leading-relaxed opacity-80 bg-card p-4 rounded-xl shadow-sm">
+                    <!-- Description goes here -->
+                </p>
+            </div>
+
+            <!-- Sub Content: Lessons -->
+            <div id="content-lessons" class="sub-content hidden space-y-3">
+                <!-- JS Injects Lessons Here -->
+            </div>
+
+            <!-- Sub Content: Activities -->
+            <div id="content-activities" class="sub-content hidden space-y-3">
+                <!-- JS Injects Activities Here -->
+            </div>
+        </section>
+
+        <!-- VIEW 3: UPDATES (Feed) -->
+        <section id="view-updates" class="view-section">
+            <header class="mb-6">
+                <h2 class="text-2xl font-bold">Class Updates</h2>
+                <p class="text-xs opacity-60">Announcements from J1b</p>
+            </header>
+
+            <div id="updates-feed" class="space-y-4 pb-20">
+                <!-- JS Injects Updates Here -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- BOTTOM NAVIGATION -->
+    <nav class="fixed bottom-0 w-full bg-card border-t border-gray-200 dark:border-gray-800 pb-safe z-40">
+        <div class="max-w-md mx-auto flex justify-around">
+            <button onclick="switchView('overview')" class="nav-btn active flex-1 py-4 text-center opacity-60 hover:opacity-100 transition" data-target="overview">
+                <i class="fas fa-home text-xl mb-1 block"></i>
+                <span class="text-xs font-bold">Home</span>
+            </button>
+            <button onclick="switchView('subjects')" class="nav-btn flex-1 py-4 text-center opacity-60 hover:opacity-100 transition" data-target="subjects">
+                <i class="fas fa-book text-xl mb-1 block"></i>
+                <span class="text-xs font-bold">Subjects</span>
+            </button>
+            <button onclick="switchView('updates')" class="nav-btn flex-1 py-4 text-center opacity-60 hover:opacity-100 transition" data-target="updates">
+                <i class="fas fa-bullhorn text-xl mb-1 block"></i>
+                <span class="text-xs font-bold">Updates</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- MODAL: THEME PICKER -->
+    <div id="theme-modal" class="fixed inset-0 bg-black/50 z-[60] hidden flex items-center justify-center px-4 backdrop-blur-sm">
+        <div class="bg-card w-full max-w-sm p-6 rounded-2xl shadow-2xl">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold">Customize Theme</h3>
+                <button onclick="toggleThemeModal()" class="p-2 opacity-50"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="grid grid-cols-1 gap-3" id="theme-options">
+                <!-- Buttons injected by JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN JAVASCRIPT -->
+    <script>
+        
+        /* ================================================================
+           ---------------- ADMIN: EDIT CONTENT HERE ---------------- 
+           ================================================================
+           This is the "Database". Edit the text inside the quotes to change
+           what appears on the website.
+        */
+
+        const CLASS_DATA = {
+            
+            // 1. UPDATES SECTION
+            updates: [
+                {
+                    title: "Website Launched",
+                    date: "Dec 14",
+                    text: "Welcome to the 11-STEM by J1b class tracker. Check the subjects tab!"
+                },
+                {
+                    title: "Math Reminder",
+                    date: "Dec 13",
+                    text: "Don't forget to bring your calculator for Basic Calculus tomorrow."
+                }
+            ],
+
+            // 2. SUBJECTS CONTENT
+            subjects: [
+                // --- CORE SUBJECTS ---
+                {
+                    id: "drrr",
+                    name: "Disaster Readiness (DRRR)",
+                    type: "core",
+                    description: "Focuses on the application of scientific knowledge and solution of practical problems in physical environment.",
+                    lessons: [
+                        { title: "Module 1: Basic Concepts", link: "#" }, // Replace '#' with Google Drive link
+                        { title: "Module 2: Hazards", link: "#" }
+                    ],
+                    activities: [
+                        { title: "Hazard Map Drawing", status: "Pending" }
+                    ]
+                },
+                {
+                    id: "filipino",
+                    name: "Pagbasa at Pagsusuri",
+                    type: "core",
+                    description: "Pag-aaral sa proseso ng pagbasa at pagsusuri ng iba't ibang anyo at uri ng teksto.",
+                    lessons: [],
+                    activities: []
+                },
+                {
+                    id: "pe",
+                    name: "PE & Health 2",
+                    type: "core",
+                    description: "Physical Education focusing on team sports and healthy lifestyle.",
+                    lessons: [
+                         { title: "Basketball Rules PDF", link: "#" }
+                    ],
+                    activities: [
+                        { title: "Performance Task: Dance", status: "Done" }
+                    ]
+                },
+                {
+                    id: "reading",
+                    name: "Reading & Writing Skills",
+                    type: "core",
+                    description: "Development of reading and writing skills as applied to a wide range of materials.",
+                    lessons: [],
+                    activities: []
+                },
+                {
+                    id: "stats",
+                    name: "Statistics & Probability",
+                    type: "core",
+                    description: "Study of random variables, sampling techniques, and estimation.",
+                    lessons: [],
+                    activities: [
+                        { title: "Problem Set 1.1", status: "Pending" }
+                    ]
+                },
+
+                // --- APPLIED / SPECIALIZED ---
+                {
+                    id: "filipinol",
+                    name: "Filipino sa Piling Larangan",
+                    type: "applied",
+                    description: "Pagsulat ng iba't ibang anyo ng sulating lilinang sa mga kakayahang magpahayag.",
+                    lessons: [],
+                    activities: []
+                },
+                {
+                    id: "research",
+                    name: "Practical Research",
+                    type: "applied",
+                    description: "Develops critical thinking and problem-solving skills through qualitative research.",
+                    lessons: [
+                        { title: "Chapter 1 Guide", link: "#" }
+                    ],
+                    activities: [
+                        { title: "Submit Research Title", status: "Pending" }
+                    ]
+                },
+                {
+                    id: "calculus",
+                    name: "Basic Calculus",
+                    type: "applied",
+                    description: "Introduction to limits, continuity, derivatives, and integrals.",
+                    lessons: [
+                        { title: "Limit Laws Cheatsheet", link: "#" }
+                    ],
+                    activities: []
+                },
+                {
+                    id: "bio",
+                    name: "General Biology 2",
+                    type: "applied",
+                    description: "Study of life, genetics, evolution, and systematics.",
+                    lessons: [],
+                    activities: []
+                },
+                {
+                    id: "cle",
+                    name: "Christian Living Ed 2",
+                    type: "applied",
+                    description: "Christian formation and values education.",
+                    lessons: [],
+                    activities: []
+                }
+            ]
+        };
+
+        /* ================================================================
+           ---------------- END OF ADMIN AREA ---------------- 
+           ---------------- (Do not touch code below) ----------------
+           ================================================================
+        */
+
+        // --- RENDER FUNCTIONS ---
+
+        function renderContent() {
+            // 1. Render Subjects List
+            const coreList = document.getElementById('core-list');
+            const appliedList = document.getElementById('applied-list');
+            
+            // Clear lists
+            coreList.innerHTML = '';
+            appliedList.innerHTML = '';
+
+            CLASS_DATA.subjects.forEach(sub => {
+                const card = document.createElement('div');
+                card.className = 'bg-card p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 flex justify-between items-center active:scale-95 transition cursor-pointer';
+                card.onclick = () => openSubjectDetails(sub.id);
+                
+                // Color coding based on type
+                const iconColor = sub.type === 'core' ? 'text-primary' : 'text-secondary';
+                
+                card.innerHTML = `
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-full bg-gray-50 dark:bg-gray-800 flex items-center justify-center ${iconColor}">
+                            <i class="fas fa-book"></i>
+                        </div>
+                        <span class="font-bold text-sm sm:text-base">${sub.name}</span>
+                    </div>
+                    <i class="fas fa-chevron-right opacity-30"></i>
+                `;
+
+                if(sub.type === 'core') coreList.appendChild(card);
+                else appliedList.appendChild(card);
+            });
+
+            // 2. Render Updates
+            const updatesList = document.getElementById('updates-feed');
+            updatesList.innerHTML = '';
+            
+            CLASS_DATA.updates.forEach(up => {
+                const item = document.createElement('div');
+                item.className = 'bg-card p-5 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700';
+                item.innerHTML = `
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="font-bold text-lg">${up.title}</h3>
+                        <span class="text-xs font-mono bg-primary-20 px-2 py-1 rounded text-primary">${up.date}</span>
+                    </div>
+                    <p class="opacity-70 text-sm leading-relaxed">${up.text}</p>
+                `;
+                updatesList.appendChild(item);
+            });
+        }
+
+        // --- SUBJECT DETAIL LOGIC ---
+        
+        let currentSubject = null;
+
+        function openSubjectDetails(id) {
+            currentSubject = CLASS_DATA.subjects.find(s => s.id === id);
+            if(!currentSubject) return;
+
+            // Populate Info
+            document.getElementById('detail-title').innerText = currentSubject.name;
+            document.getElementById('detail-category').innerText = currentSubject.type === 'core' ? 'Core Subject' : 'Specialized Subject';
+            document.getElementById('detail-description').innerText = currentSubject.description || "No description available.";
+
+            // Populate Lessons
+            const lessonContainer = document.getElementById('content-lessons');
+            lessonContainer.innerHTML = '';
+            if(currentSubject.lessons && currentSubject.lessons.length > 0) {
+                currentSubject.lessons.forEach(l => {
+                    const lCard = document.createElement('a');
+                    lCard.href = l.link;
+                    lCard.className = 'block bg-card p-4 rounded-xl border border-gray-100 dark:border-gray-700 flex items-center gap-3 active:bg-gray-50 dark:active:bg-gray-800';
+                    lCard.innerHTML = `<i class="fas fa-file-alt text-secondary"></i> <span class="font-bold text-sm underline decoration-primary decoration-2">${l.title}</span>`;
+                    lessonContainer.appendChild(lCard);
+                });
+            } else {
+                lessonContainer.innerHTML = `<div class="text-center opacity-50 py-10"><i class="fas fa-folder-open mb-2 block"></i>No lessons uploaded yet</div>`;
+            }
+
+            // Populate Activities
+            const activityContainer = document.getElementById('content-activities');
+            activityContainer.innerHTML = '';
+            if(currentSubject.activities && currentSubject.activities.length > 0) {
+                currentSubject.activities.forEach(a => {
+                    const aCard = document.createElement('div');
+                    aCard.className = 'bg-card p-4 rounded-xl border-l-4 border-primary shadow-sm';
+                    aCard.innerHTML = `
+                        <div class="font-bold text-sm">${a.title}</div>
+                        <div class="text-xs opacity-60 mt-1 uppercase tracking-wide">${a.status}</div>
+                    `;
+                    activityContainer.appendChild(aCard);
+                });
+            } else {
+                activityContainer.innerHTML = `<div class="text-center opacity-50 py-10"><i class="fas fa-coffee mb-2 block"></i>No pending activities</div>`;
+            }
+
+            // Switch Views
+            document.getElementById('view-subjects').style.display = 'none';
+            document.getElementById('view-details').classList.add('active');
+            
+            // Reset to overview tab
+            switchSubTab('overview');
+        }
+
+        function closeDetails() {
+            document.getElementById('view-details').classList.remove('active');
+            document.getElementById('view-subjects').style.display = 'block';
+            document.getElementById('view-subjects').classList.add('active'); // re-trigger anim
+        }
+
+        function switchSubTab(tabName) {
+            // Update Tab UI
+            document.querySelectorAll('.sub-tab').forEach(t => t.classList.remove('active'));
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+
+            // Show Content
+            document.querySelectorAll('.sub-content').forEach(c => c.classList.add('hidden'));
+            document.getElementById(`content-${tabName}`).classList.remove('hidden');
+        }
+
+
+        // --- GENERIC VIEW SWITCHER ---
+        function switchView(viewId) {
+            // Handle bottom nav active states
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                if(btn.dataset.target === viewId) {
+                    btn.classList.add('text-primary', 'opacity-100');
+                    btn.classList.remove('opacity-60');
+                } else {
+                    btn.classList.remove('text-primary', 'opacity-100');
+                    btn.classList.add('opacity-60');
+                }
+            });
+
+            // Logic: if viewId is 'subjects', ensure we show the list, not details
+            if(viewId === 'subjects') {
+                document.getElementById('view-details').classList.remove('active');
+            }
+
+            // Switch Sections
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            document.getElementById(`view-${viewId}`).classList.add('active');
+        }
+
+        // --- THEME & DARK MODE LOGIC ---
+         const themes = {
+            teal: { primary: '45 212 191', secondary: '6 182 212', label: 'Teal & Cyan' }, 
+            purple: { primary: '168 85 247', secondary: '37 99 235', label: 'Purple & Blue' },
+            mono: { primary: '15 23 42', secondary: '100 116 139', darkPrimary: '255 255 255', label: 'Black & White' },
+            gold: { primary: '217 119 6', secondary: '71 85 105', label: 'Gold & Slate' },
+            red: { primary: '244 63 94', secondary: '236 72 153', label: 'Reddish Pink' }
+        };
+
+        const html = document.documentElement;
+
+        function setTheme(themeName) {
+            const theme = themes[themeName];
+            html.style.setProperty('--primary', theme.primary);
+            html.style.setProperty('--secondary', theme.secondary);
+            
+            if(themeName === 'mono' && html.classList.contains('dark')) {
+                html.style.setProperty('--primary', theme.darkPrimary);
+            } else if (themeName === 'mono') {
+                 html.style.setProperty('--primary', theme.primary);
+            }
+
+            localStorage.setItem('tracker_theme', themeName);
+            document.getElementById('theme-modal').classList.add('hidden');
+        }
+
+        function toggleThemeModal() {
+            const modal = document.getElementById('theme-modal');
+            const container = document.getElementById('theme-options');
+            modal.classList.toggle('hidden');
+            
+            // Build options dynamically
+            if(container.children.length === 0) {
+                Object.keys(themes).forEach(key => {
+                    const t = themes[key];
+                    const btn = document.createElement('button');
+                    btn.className = 'flex items-center p-3 rounded-xl border border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 w-full text-left';
+                    btn.onclick = () => setTheme(key);
+                    btn.innerHTML = `
+                        <div class="w-6 h-6 rounded-full mr-3" style="background: rgb(${t.primary})"></div>
+                        <span class="font-bold text-sm">${t.label}</span>
+                    `;
+                    container.appendChild(btn);
+                });
+            }
+        }
+
+        // Dark Mode
+        document.getElementById('dark-mode-toggle').addEventListener('click', () => {
+            html.classList.toggle('dark');
+            const isDark = html.classList.contains('dark');
+            localStorage.setItem('color-mode', isDark ? 'dark' : 'light');
+            
+            document.getElementById('dark-mode-icon').className = isDark ? 'fas fa-sun text-secondary text-lg' : 'fas fa-moon text-secondary text-lg';
+            
+            // Re-apply theme for mono fix
+            const currentTheme = localStorage.getItem('tracker_theme') || 'teal';
+            setTheme(currentTheme);
+        });
+
+        // Initialize
+        window.onload = () => {
+            renderContent();
+            
+            // Load Settings
+            const savedTheme = localStorage.getItem('tracker_theme') || 'teal';
+            setTheme(savedTheme);
+            
+            const savedMode = localStorage.getItem('color-mode');
+            if (savedMode === 'dark' || (!savedMode && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                html.classList.add('dark');
+                document.getElementById('dark-mode-icon').className = 'fas fa-sun text-secondary text-lg';
+            }
+
+            switchView('overview');
+        };
+
+    </script>
+</body>
+</html>
+
+
