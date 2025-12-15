@@ -188,7 +188,7 @@
     <script type="module">
         // Import Firebase modules
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
         import { getFirestore, collection, onSnapshot, addDoc, doc, updateDoc, deleteDoc, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
         // --- FIREBASE CONFIGURATION (PASTED FROM YOUR CONSOLE) ---
@@ -204,11 +204,9 @@
         };
         
         // --- ADMIN UID CONFIGURATION ---
-        // Once you create the admin user (e.g., admin@j1bstem.edu / admin123) in Firebase,
-        // sign in and check the console (or Firebase Auth tab) for the UID. 
-        // Replace the placeholder UID below with the actual UID of your admin user.
-        // The first user you create with the default credentials will be the admin.
-        const ADMIN_UIDS = []; // Will be populated when the admin signs in for the first time
+        // This is the UID for the admin user you must create in your Firebase console.
+        // For the first login, the user's UID will be automatically captured.
+        let ADMIN_UID = '';
         
         // --- FIREBASE INITIALIZATION ---
         const app = initializeApp(firebaseConfig);
@@ -219,11 +217,20 @@
         let currentUser = null;
         let isAdmin = false;
 
+        // --- AUTH SETUP: SIGN IN ANONYMOUSLY FOR GENERAL ACCESS ---
+        // This ensures the site can start immediately and read data, using the Anonymous sign-in method you enabled.
+        signInAnonymously(auth)
+            .then((userCredential) => {
+                console.log("Signed in anonymously to read data.");
+            })
+            .catch((error) => {
+                console.error("Anonymous Sign-in failed:", error);
+            });
+        
         // --- UTILITY FUNCTIONS ---
 
         /**
          * Shows a modal overlay by updating its CSS classes.
-         * @param {string} id - The ID of the modal element.
          */
         window.showModal = function(id) {
             const modal = document.getElementById(id);
@@ -236,7 +243,6 @@
 
         /**
          * Hides a modal overlay by updating its CSS classes.
-         * @param {string} id - The ID of the modal element.
          */
         window.hideModal = function(id) {
             const modal = document.getElementById(id);
@@ -254,7 +260,7 @@
             const authUi = document.getElementById('auth-ui');
             authUi.innerHTML = ''; // Clear existing UI
             
-            if (currentUser) {
+            if (currentUser && !currentUser.isAnonymous) {
                 const userElement = document.createElement('div');
                 userElement.className = 'text-right';
                 
@@ -264,13 +270,14 @@
                                     <i data-lucide="shield-check" class="w-3 h-3 mr-1"></i> ADMIN
                                   </span>`;
                 } else {
+                    // Should not happen, as only the Admin will use email/password login
                     userStatus = `<span class="inline-flex items-center px-3 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-600">
-                                    VIEWER
+                                    AUTHED
                                   </span>`;
                 }
 
                 userElement.innerHTML = `
-                    <p class="text-xs text-gray-500 truncate">${currentUser.email || 'Anonymous User'}</p>
+                    <p class="text-xs text-gray-500 truncate">${currentUser.email || 'Admin'}</p>
                     ${userStatus}
                     <button id="logout-btn" class="text-xs text-indigo-500 hover:text-indigo-700 transition-colors mt-1" onclick="handleLogout()">Log out</button>
                 `;
@@ -311,14 +318,19 @@
             errorElement.classList.add('hidden');
 
             try {
-                // Sign in with email and password
-                await signInWithEmailAndPassword(auth, email, password);
+                // Sign in with email and password (must be created in Firebase Console first!)
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
                 
-                // If sign-in is successful, onAuthStateChanged will handle the rest.
+                // Automatically set this UID as the Admin if it's the first time
+                if (!ADMIN_UID) {
+                    ADMIN_UID = userCredential.user.uid;
+                    console.log(`First Admin UID registered: ${ADMIN_UID}`);
+                }
+
                 hideModal('login-modal');
             } catch (error) {
                 // Handle errors like wrong password or email
-                errorElement.textContent = `Login Failed: ${error.message}`;
+                errorElement.textContent = `Login Failed. Please ensure you created the user in Firebase Auth.`;
                 errorElement.classList.remove('hidden');
                 console.error("Login error:", error);
             }
@@ -329,7 +341,9 @@
          */
         window.handleLogout = async function() {
             try {
+                // After logging out the admin, we sign back in anonymously to allow read access
                 await signOut(auth);
+                await signInAnonymously(auth);
             } catch (error) {
                 console.error("Logout error:", error);
             }
@@ -342,17 +356,10 @@
             currentUser = user;
             isAdmin = false;
             
-            // If user is logged in, check if their UID is an admin
             if (user) {
-                // NOTE: This is where we check if the signed-in user's UID is in our ADMIN_UIDS array.
-                // For the first time, if they are the admin, we add them to the array for future use.
-                // In a production environment, you would use Firestore security rules for this.
-                if (ADMIN_UIDS.includes(user.uid) || ADMIN_UIDS.length === 0) {
+                // If the user is NOT anonymous and matches the admin UID
+                if (!user.isAnonymous && user.uid === ADMIN_UID) {
                     isAdmin = true;
-                    if (!ADMIN_UIDS.includes(user.uid)) {
-                        ADMIN_UIDS.push(user.uid); // Add the first logged-in user as Admin if list is empty
-                        console.log("Welcome Admin! Your UID has been registered for this session:", user.uid);
-                    }
                 }
             }
             
@@ -365,7 +372,6 @@
 
         /**
          * Renders the list of subjects.
-         * @param {Array} subjects - Array of subject objects.
          */
         function renderSubjects(subjects) {
             const subjectList = document.getElementById('subject-list');
@@ -384,10 +390,10 @@
                     <div class="flex items-center justify-between">
                         <h4 class="text-lg font-semibold text-gray-800">${subject.name}</h4>
                         <div class="flex space-x-2 ${isAdmin ? '' : 'hidden'}">
-                            <button class="text-indigo-500 hover:text-indigo-700" onclick="editSubject('${subject.id}', '${subject.name}', '${subject.teacher}', '${subject.status}')">
+                            <button class="text-indigo-500 hover:text-indigo-700" onclick="editSubject('${subject.id}', '${subject.name.replace(/'/g, "\\'")}', '${subject.teacher.replace(/'/g, "\\'")}', '${subject.status.replace(/'/g, "\\'")}')">
                                 <i data-lucide="edit-3" class="w-4 h-4"></i>
                             </button>
-                            <button class="text-red-500 hover:text-red-700" onclick="deleteSubject('${subject.id}', '${subject.name}')">
+                            <button class="text-red-500 hover:text-red-700" onclick="deleteSubject('${subject.id}', '${subject.name.replace(/'/g, "\\'")}')">
                                 <i data-lucide="trash-2" class="w-4 h-4"></i>
                             </button>
                         </div>
@@ -402,7 +408,6 @@
 
         /**
          * Renders the list of announcements.
-         * @param {Array} announcements - Array of announcement objects.
          */
         function renderAnnouncements(announcements) {
             const announcementList = document.getElementById('announcement-list');
@@ -426,10 +431,10 @@
                             <p class="text-xs text-gray-500 mt-1">Posted: ${date}</p>
                         </div>
                         <div class="flex space-x-2 ${isAdmin ? '' : 'hidden'}">
-                            <button class="text-indigo-500 hover:text-indigo-700" onclick="editAnnouncement('${announcement.id}', '${announcement.title}', \`${announcement.content.replace(/'/g, "\\'")}\`)">
+                            <button class="text-indigo-500 hover:text-indigo-700" onclick="editAnnouncement('${announcement.id}', '${announcement.title.replace(/'/g, "\\'")}', \`${announcement.content.replace(/`/g, "\\`").replace(/'/g, "\\'")}\`)">
                                 <i data-lucide="edit-3" class="w-4 h-4"></i>
                             </button>
-                            <button class="text-red-500 hover:text-red-700" onclick="deleteAnnouncement('${announcement.id}', '${announcement.title}')">
+                            <button class="text-red-500 hover:text-red-700" onclick="deleteAnnouncement('${announcement.id}', '${announcement.title.replace(/'/g, "\\'")}')">
                                 <i data-lucide="trash-2" class="w-4 h-4"></i>
                             </button>
                         </div>
@@ -462,7 +467,7 @@
          */
         window.deleteSubject = async function(id, name) {
             if (!isAdmin) return;
-            if (confirm(`Are you sure you want to delete the subject: ${name}?`)) {
+            if (window.confirm(`Are you sure you want to delete the subject: ${name}?`)) {
                 try {
                     await deleteDoc(doc(db, "subjects", id));
                     console.log("Subject successfully deleted!");
@@ -479,7 +484,6 @@
             if (!isAdmin) return;
             document.getElementById('announcement-id').value = id;
             document.getElementById('announcement-title').value = title;
-            // Use decodeURIComponent for content that might have been escaped
             document.getElementById('announcement-content').value = content;
             document.getElementById('announcement-modal-title').textContent = 'Edit Announcement';
             showModal('announcement-modal');
@@ -490,7 +494,7 @@
          */
         window.deleteAnnouncement = async function(id, title) {
             if (!isAdmin) return;
-            if (confirm(`Are you sure you want to delete the announcement: ${title}?`)) {
+            if (window.confirm(`Are you sure you want to delete the announcement: ${title}?`)) {
                 try {
                     await deleteDoc(doc(db, "announcements", id));
                     console.log("Announcement successfully deleted!");
@@ -591,7 +595,7 @@
             snapshot.forEach((doc) => {
                 subjects.push({ id: doc.id, ...doc.data() });
             });
-            // NOTE: Sorting is done in memory to avoid needing Firestore indexes.
+            // Sorting is done in memory by name
             subjects.sort((a, b) => a.name.localeCompare(b.name));
             renderSubjects(subjects);
         }, (error) => {
@@ -600,14 +604,13 @@
         });
 
         // 2. Listen for Announcements changes
-        // Order by timestamp descending (newest first)
         const announcementsQuery = query(collection(db, "announcements"));
         onSnapshot(announcementsQuery, (snapshot) => {
             const announcements = [];
             snapshot.forEach((doc) => {
                 announcements.push({ id: doc.id, ...doc.data() });
             });
-            // NOTE: Sorting is done in memory to avoid needing Firestore indexes.
+            // Sorting is done in memory by timestamp descending (newest first)
             announcements.sort((a, b) => {
                 const timeA = a.timestamp ? a.timestamp.seconds : 0;
                 const timeB = b.timestamp ? b.timestamp.seconds : 0;
