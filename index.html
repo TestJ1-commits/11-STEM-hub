@@ -3,594 +3,627 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>11-STEM by J1b</title>
-    <!-- Tailwind CSS -->
+    <title>11-STEM by J1b - Class Hub</title>
+    <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
-
-    <!-- CSS Variables for Theming -->
+    <!-- Load Lucide Icons for aesthetic icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Use Inter font family -->
     <style>
-        :root {
-            /* Default: Teal/Cyan */
-            --primary: 45 212 191;   
-            --secondary: 6 182 212;  
-            --bg-body: 248 250 252;
-            --bg-card: 255 255 255;
-            --text-main: 15 23 42;
-        }
-
-        /* Dark Mode overrides */
-        .dark {
-            --bg-body: 15 23 42;
-            --bg-card: 30 41 59;
-            --text-main: 241 245 249;
-        }
-
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
         body {
-            font-family: 'Outfit', sans-serif;
-            background-color: rgb(var(--bg-body));
-            color: rgb(var(--text-main));
-            transition: background-color 0.3s, color 0.3s;
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fa;
         }
-
-        /* Dynamic Tailwind Colors */
-        .text-primary { color: rgb(var(--primary)); }
-        .bg-primary { background-color: rgb(var(--primary)); }
-        .border-primary { border-color: rgb(var(--primary)); }
-        .bg-primary-20 { background-color: rgba(var(--primary), 0.2); }
-        .bg-card { background-color: rgb(var(--bg-card)); }
-
-        /* Animation for View Switching */
-        .view-section {
-            display: none;
-            animation: fadeIn 0.3s ease-out;
+        .section-card {
+            background-color: white;
+            border-radius: 1.5rem; /* Large rounded corners */
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s;
         }
-        .view-section.active {
-            display: block;
+        .section-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
         }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+        /* Custom scrollbar for better look */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
         }
-
-        /* Gradient Text */
-        .brand-gradient {
-            background: linear-gradient(to right, rgb(var(--primary)), rgb(var(--secondary)));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #6366f1; /* Indigo-500 */
+            border-radius: 4px;
         }
-        
-        /* Sub-tab styling in Subject View */
-        .sub-tab.active {
-            border-bottom: 2px solid rgb(var(--primary));
-            color: rgb(var(--primary));
-            font-weight: 700;
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background-color: #e5e7eb;
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col pb-20">
+<body class="min-h-screen p-4 sm:p-8">
 
-    <!-- TOP NAVIGATION -->
-    <nav class="sticky top-0 z-50 bg-card shadow-sm border-b border-gray-100 dark:border-gray-800 transition-colors duration-300">
-        <div class="max-w-md mx-auto px-4 h-16 flex justify-between items-center">
-            <!-- Logo -->
-            <div class="font-bold text-xl tracking-tight">
-                <span class="brand-gradient">11-STEM by J1b</span>
+    <div id="app" class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <header class="flex justify-between items-center mb-8 p-4 bg-white rounded-xl shadow-md">
+            <div class="flex items-center space-x-3">
+                <div class="w-12 h-12 flex items-center justify-center bg-indigo-100 rounded-full text-indigo-600">
+                    <i data-lucide="graduation-cap" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-800">11-STEM by J1b</h1>
+                    <p class="text-sm text-gray-500">Official Class Hub</p>
+                </div>
+            </div>
+            
+            <div id="auth-ui" class="flex items-center space-x-4">
+                <!-- User/Admin Status will be rendered here -->
+            </div>
+        </header>
+
+        <!-- Main Content Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- Left Column: Announcements (Full Width on Mobile, 2/3 on Desktop) -->
+            <div class="lg:col-span-2 space-y-8">
+                
+                <!-- Welcome/Purpose Card -->
+                <div class="section-card p-6 border-l-4 border-indigo-500">
+                    <h2 class="text-xl font-extrabold text-gray-800 mb-2">Welcome Class!</h2>
+                    <p class="text-sm text-gray-600 mb-4">
+                        This centralized hub is designed for 11-STEM J1b to track all subjects, view important announcements, and manage study materials.
+                    </p>
+                </div>
+
+                <!-- Announcements Section -->
+                <div class="section-card p-6">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4 flex items-center justify-between">
+                        Important Announcements
+                        <button id="add-announcement-btn" class="hidden text-sm font-semibold px-3 py-1 bg-indigo-500 text-white rounded-full hover:bg-indigo-600 transition-colors" onclick="showModal('announcement-modal')">
+                            <i data-lucide="plus" class="w-4 h-4 inline-block mr-1"></i> Add
+                        </button>
+                    </h2>
+                    
+                    <div id="announcement-list" class="space-y-4">
+                        <!-- Announcements will be loaded here -->
+                        <div id="loading-announcements" class="text-center py-8 text-gray-500">
+                            <i data-lucide="loader" class="w-6 h-6 animate-spin mx-auto mb-2"></i> Loading Announcements...
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div class="flex items-center gap-2">
-                <!-- Theme Picker -->
-                <button onclick="toggleThemeModal()" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition">
-                    <i class="fas fa-palette text-secondary text-lg"></i>
-                </button>
-                <!-- Dark Mode -->
-                <button id="dark-mode-toggle" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition">
-                    <i class="fas fa-moon text-secondary text-lg" id="dark-mode-icon"></i>
-                </button>
+            <!-- Right Column: Subjects (1/3 on Desktop) -->
+            <div class="lg:col-span-1">
+                <div class="section-card p-6">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4 flex items-center justify-between">
+                        Subjects
+                        <button id="add-subject-btn" class="hidden text-sm font-semibold px-3 py-1 bg-indigo-500 text-white rounded-full hover:bg-indigo-600 transition-colors" onclick="showModal('subject-modal')">
+                            <i data-lucide="plus" class="w-4 h-4 inline-block mr-1"></i> Add
+                        </button>
+                    </h2>
+                    
+                    <div id="subject-list" class="space-y-3">
+                        <!-- Subjects will be loaded here -->
+                        <div id="loading-subjects" class="text-center py-8 text-gray-500">
+                            <i data-lucide="loader" class="w-6 h-6 animate-spin mx-auto mb-2"></i> Loading Subjects...
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-    </nav>
+        
+    </div>
 
-    <!-- MAIN CONTENT AREA -->
-    <main class="flex-grow max-w-md mx-auto w-full px-4 py-6 relative">
-
-        <!-- VIEW 1: OVERVIEW (Description) -->
-        <section id="view-overview" class="view-section active">
-            <header class="mb-6 text-center">
-                <div class="w-20 h-20 bg-primary-20 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl text-primary">
-                    <i class="fas fa-graduation-cap"></i>
+    <!-- Modals -->
+    <!-- Reusable Modal Structure (Hidden by default) -->
+    <div id="announcement-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50 transition-opacity duration-300 opacity-0 pointer-events-none">
+        <div class="bg-white p-6 rounded-xl shadow-2xl w-full max-w-md m-4 transform transition-transform duration-300 scale-95">
+            <h3 id="announcement-modal-title" class="text-xl font-bold mb-4 text-gray-800">Add New Announcement</h3>
+            <form id="announcement-form">
+                <input type="hidden" id="announcement-id">
+                <div class="mb-4">
+                    <label for="announcement-title" class="block text-sm font-medium text-gray-700 mb-1">Title</label>
+                    <input type="text" id="announcement-title" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500" required>
                 </div>
-                <h1 class="text-3xl font-bold mb-2">Welcome Class!</h1>
-                <p class="opacity-70 text-sm">Official tracker for 11-STEM by J1b</p>
-            </header>
-
-            <div class="bg-card p-6 rounded-2xl shadow-sm border-l-4 border-primary mb-6">
-                <h3 class="font-bold text-lg mb-2">Purpose of this Tracker</h3>
-                <p class="opacity-80 leading-relaxed text-sm">
-                    This website serves as a central hub for our class. Check the <b>Subjects</b> tab for lessons, downloadable documents, and upcoming activities. Check <b>Updates</b> for announcements from the class representative.
-                </p>
-            </div>
-
-            <div class="grid grid-cols-2 gap-4">
-                <button onclick="switchView('subjects')" class="bg-card p-4 rounded-xl shadow-sm hover:shadow-md transition text-center border border-gray-100 dark:border-gray-700">
-                    <i class="fas fa-book text-2xl text-primary mb-2"></i>
-                    <div class="font-bold text-sm">Browse Subjects</div>
-                </button>
-                <button onclick="switchView('updates')" class="bg-card p-4 rounded-xl shadow-sm hover:shadow-md transition text-center border border-gray-100 dark:border-gray-700">
-                    <i class="fas fa-bell text-2xl text-secondary mb-2"></i>
-                    <div class="font-bold text-sm">Latest News</div>
-                </button>
-            </div>
-        </section>
-
-        <!-- VIEW 2: SUBJECTS LIST -->
-        <section id="view-subjects" class="view-section">
-            <h2 class="text-2xl font-bold mb-6">Class Subjects</h2>
-
-            <!-- Core Subjects Group -->
-            <div class="mb-6">
-                <h3 class="text-xs font-bold uppercase tracking-wider opacity-50 mb-3 ml-1">Core Subjects</h3>
-                <div id="core-list" class="space-y-3">
-                    <!-- JS Injects Here -->
+                <div class="mb-4">
+                    <label for="announcement-content" class="block text-sm font-medium text-gray-700 mb-1">Details</label>
+                    <textarea id="announcement-content" rows="4" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500" required></textarea>
                 </div>
-            </div>
-
-            <!-- Applied Group -->
-            <div class="mb-20">
-                <h3 class="text-xs font-bold uppercase tracking-wider opacity-50 mb-3 ml-1">Applied & Specialized</h3>
-                <div id="applied-list" class="space-y-3">
-                    <!-- JS Injects Here -->
+                <div class="flex justify-end space-x-3">
+                    <button type="button" class="px-4 py-2 bg-gray-200 text-gray-700 font-medium rounded-lg hover:bg-gray-300 transition-colors" onclick="hideModal('announcement-modal')">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition-colors">Save Announcement</button>
                 </div>
-            </div>
-        </section>
-
-        <!-- VIEW 2.5: SUBJECT DETAILS (Hidden by default) -->
-        <section id="view-details" class="view-section">
-            <!-- Back Button Header -->
-            <button onclick="closeDetails()" class="flex items-center text-sm font-bold opacity-70 mb-4 hover:text-primary transition">
-                <i class="fas fa-arrow-left mr-2"></i> Back to List
-            </button>
-
-            <!-- Subject Title -->
-            <header class="mb-6">
-                <h1 id="detail-title" class="text-2xl font-bold leading-tight brand-gradient">Subject Name</h1>
-                <span id="detail-category" class="text-xs font-mono bg-primary-20 px-2 py-1 rounded text-primary mt-2 inline-block">Core</span>
-            </header>
-
-            <!-- Sub Navigation Tabs -->
-            <div class="flex border-b border-gray-200 dark:border-gray-700 mb-6">
-                <button onclick="switchSubTab('overview')" id="tab-overview" class="sub-tab active flex-1 pb-3 text-sm text-center transition">Overview</button>
-                <button onclick="switchSubTab('lessons')" id="tab-lessons" class="sub-tab flex-1 pb-3 text-sm text-center transition">Lessons</button>
-                <button onclick="switchSubTab('activities')" id="tab-activities" class="sub-tab flex-1 pb-3 text-sm text-center transition">Activities</button>
-            </div>
-
-            <!-- Sub Content: Overview -->
-            <div id="content-overview" class="sub-content">
-                <p id="detail-description" class="leading-relaxed opacity-80 bg-card p-4 rounded-xl shadow-sm">
-                    <!-- Description goes here -->
-                </p>
-            </div>
-
-            <!-- Sub Content: Lessons -->
-            <div id="content-lessons" class="sub-content hidden space-y-3">
-                <!-- JS Injects Lessons Here -->
-            </div>
-
-            <!-- Sub Content: Activities -->
-            <div id="content-activities" class="sub-content hidden space-y-3">
-                <!-- JS Injects Activities Here -->
-            </div>
-        </section>
-
-        <!-- VIEW 3: UPDATES (Feed) -->
-        <section id="view-updates" class="view-section">
-            <header class="mb-6">
-                <h2 class="text-2xl font-bold">Class Updates</h2>
-                <p class="text-xs opacity-60">Announcements from J1b</p>
-            </header>
-
-            <div id="updates-feed" class="space-y-4 pb-20">
-                <!-- JS Injects Updates Here -->
-            </div>
-        </section>
-
-    </main>
-
-    <!-- BOTTOM NAVIGATION -->
-    <nav class="fixed bottom-0 w-full bg-card border-t border-gray-200 dark:border-gray-800 pb-safe z-40">
-        <div class="max-w-md mx-auto flex justify-around">
-            <button onclick="switchView('overview')" class="nav-btn active flex-1 py-4 text-center opacity-60 hover:opacity-100 transition" data-target="overview">
-                <i class="fas fa-home text-xl mb-1 block"></i>
-                <span class="text-xs font-bold">Home</span>
-            </button>
-            <button onclick="switchView('subjects')" class="nav-btn flex-1 py-4 text-center opacity-60 hover:opacity-100 transition" data-target="subjects">
-                <i class="fas fa-book text-xl mb-1 block"></i>
-                <span class="text-xs font-bold">Subjects</span>
-            </button>
-            <button onclick="switchView('updates')" class="nav-btn flex-1 py-4 text-center opacity-60 hover:opacity-100 transition" data-target="updates">
-                <i class="fas fa-bullhorn text-xl mb-1 block"></i>
-                <span class="text-xs font-bold">Updates</span>
-            </button>
-        </div>
-    </nav>
-
-    <!-- MODAL: THEME PICKER -->
-    <div id="theme-modal" class="fixed inset-0 bg-black/50 z-[60] hidden flex items-center justify-center px-4 backdrop-blur-sm">
-        <div class="bg-card w-full max-w-sm p-6 rounded-2xl shadow-2xl">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-xl font-bold">Customize Theme</h3>
-                <button onclick="toggleThemeModal()" class="p-2 opacity-50"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="grid grid-cols-1 gap-3" id="theme-options">
-                <!-- Buttons injected by JS -->
-            </div>
+            </form>
         </div>
     </div>
 
-    <!-- MAIN JAVASCRIPT -->
-    <script>
-        
-        /* ================================================================
-           ---------------- ADMIN: EDIT CONTENT HERE ---------------- 
-           ================================================================
-           This is the "Database". Edit the text inside the quotes to change
-           what appears on the website.
-        */
+    <div id="subject-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50 transition-opacity duration-300 opacity-0 pointer-events-none">
+        <div class="bg-white p-6 rounded-xl shadow-2xl w-full max-w-md m-4 transform transition-transform duration-300 scale-95">
+            <h3 id="subject-modal-title" class="text-xl font-bold mb-4 text-gray-800">Add New Subject</h3>
+            <form id="subject-form">
+                <input type="hidden" id="subject-id">
+                <div class="mb-4">
+                    <label for="subject-name" class="block text-sm font-medium text-gray-700 mb-1">Subject Name (e.g., Mathematics)</label>
+                    <input type="text" id="subject-name" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500" required>
+                </div>
+                <div class="mb-4">
+                    <label for="subject-teacher" class="block text-sm font-medium text-gray-700 mb-1">Teacher</label>
+                    <input type="text" id="subject-teacher" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500" required>
+                </div>
+                <div class="mb-4">
+                    <label for="subject-status" class="block text-sm font-medium text-gray-700 mb-1">Status/Project</label>
+                    <input type="text" id="subject-status" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500" placeholder="e.g., Final Project Due Next Week" required>
+                </div>
+                <div class="flex justify-end space-x-3">
+                    <button type="button" class="px-4 py-2 bg-gray-200 text-gray-700 font-medium rounded-lg hover:bg-gray-300 transition-colors" onclick="hideModal('subject-modal')">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition-colors">Save Subject</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
-        const CLASS_DATA = {
-            
-            // 1. UPDATES SECTION
-            updates: [
-                {
-                    title: "Website Launched",
-                    date: "Dec 14",
-                    text: "Welcome to the 11-STEM class tracker by J1b. "
-                },
-                {
-                    title: "Math Reminder",
-                    date: "Dec 13",
-                    text: "Don't forget to bring your calculator for Basic Calculus tomorrow."
-                }
-                
-            ],
+    <!-- Login/Auth Modal -->
+    <div id="login-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50 transition-opacity duration-300 opacity-0 pointer-events-none">
+        <div class="bg-white p-6 rounded-xl shadow-2xl w-full max-w-sm m-4 transform transition-transform duration-300 scale-95">
+            <h3 class="text-xl font-bold mb-4 text-gray-800">Admin Login</h3>
+            <p class="text-sm text-red-500 mb-4">You need to be logged in as an Admin to make changes.</p>
+            <form id="login-form">
+                <div class="mb-4">
+                    <label for="login-email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                    <!-- IMPORTANT: The default Admin account must be created in your Firebase Console Auth tab first! -->
+                    <input type="email" id="login-email" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500" value="admin@j1bstem.edu" required>
+                </div>
+                <div class="mb-4">
+                    <label for="login-password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                    <input type="password" id="login-password" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500" value="admin123" required>
+                </div>
+                <div id="login-error-message" class="text-red-500 text-sm mb-4 hidden"></div>
+                <div class="flex justify-end space-x-3">
+                    <button type="button" class="px-4 py-2 bg-gray-200 text-gray-700 font-medium rounded-lg hover:bg-gray-300 transition-colors" onclick="hideModal('login-modal')">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition-colors">Log In</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
-            // 2. SUBJECTS CONTENT
-            subjects: [
-                // --- CORE SUBJECTS ---
-                {
-                    id: "drrr",
-                    name: "Disaster Readiness (DRRR)",
-                    type: "core",
-                    description: "Focuses on the application of scientific knowledge and solution of practical problems in physical environment.",
-                    lessons: [
-                        { title: "Module 1: Basic Concepts", link: "#" }, // Replace '#' with Google Drive link
-                        { title: "Module 2: Hazards", link: "#" }
-                    ],
-                    activities: [
-                        { title: "Hazard Map Drawing", status: "Pending" }
-                    ]
-                },
-                {
-                    id: "filipino",
-                    name: "Pagbasa at Pagsusuri",
-                    type: "core",
-                    description: "Pag-aaral sa proseso ng pagbasa at pagsusuri ng iba't ibang anyo at uri ng teksto.",
-                    lessons: [],
-                    activities: []
-                },
-                {
-                    id: "pe",
-                    name: "PE & Health 2",
-                    type: "core",
-                    description: "Physical Education focusing on team sports and healthy lifestyle.",
-                    lessons: [
-                         { title: "Basketball Rules PDF", link: "#" }
-                    ],
-                    activities: [
-                        { title: "Performance Task: Dance", status: "Done" }
-                    ]
-                },
-                {
-                    id: "reading",
-                    name: "Reading & Writing Skills",
-                    type: "core",
-                    description: "Development of reading and writing skills as applied to a wide range of materials.",
-                    lessons: [],
-                    activities: []
-                },
-                {
-                    id: "stats",
-                    name: "Statistics & Probability",
-                    type: "core",
-                    description: "Study of random variables, sampling techniques, and estimation.",
-                    lessons: [],
-                    activities: [
-                        { title: "Problem Set 1.1", status: "Pending" }
-                    ]
-                },
 
-                // --- APPLIED / SPECIALIZED ---
-                {
-                    id: "filipinol",
-                    name: "Filipino sa Piling Larangan",
-                    type: "applied",
-                    description: "Pagsulat ng iba't ibang anyo ng sulating lilinang sa mga kakayahang magpahayag.",
-                    lessons: [],
-                    activities: []
-                },
-                {
-                    id: "research",
-                    name: "Practical Research",
-                    type: "applied",
-                    description: "Develops critical thinking and problem-solving skills through qualitative research.",
-                    lessons: [
-                        { title: "Chapter 1 Guide", link: "#" }
-                    ],
-                    activities: [
-                        { title: "Submit Research Title", status: "Pending" }
-                    ]
-                },
-                {
-                    id: "calculus",
-                    name: "Basic Calculus",
-                    type: "applied",
-                    description: "Introduction to limits, continuity, derivatives, and integrals.",
-                    lessons: [
-                        { title: "Limit Laws Cheatsheet", link: "#" }
-                    ],
-                    activities: []
-                },
-                {
-                    id: "bio",
-                    name: "General Biology 2",
-                    type: "applied",
-                    description: "Study of life, genetics, evolution, and systematics.",
-                    lessons: [],
-                    activities: []
-                },
-                {
-                    id: "cle",
-                    name: "Christian Living Ed 2",
-                    type: "applied",
-                    description: "Christian formation and values education.",
-                    lessons: [],
-                    activities: []
-                }
-            ]
+    <script type="module">
+        // Import Firebase modules
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { getFirestore, collection, onSnapshot, addDoc, doc, updateDoc, deleteDoc, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        // --- FIREBASE CONFIGURATION (PASTED FROM YOUR CONSOLE) ---
+        // This is your live, unique, and secure configuration.
+        const firebaseConfig = {
+            apiKey: "AIzaSyDFAnoQMRalQbmmIcQTtfEFcDEzmo1VfPg",
+            authDomain: "j1b-stem-hub.firebaseapp.com",
+            projectId: "j1b-stem-hub",
+            storageBucket: "j1b-stem-hub.firebasestorage.app",
+            messagingSenderId: "675941167620",
+            appId: "1:675941167620:web:3b694c9657e1e56f7fbb51"
+            // measurementId: "G-F0N1RF374X" // Removed analytics for simplicity
         };
-
-        /* ================================================================
-           ---------------- END OF ADMIN AREA ---------------- 
-           ---------------- (Do not touch code below) ----------------
-           ================================================================
-        */
-
-        // --- RENDER FUNCTIONS ---
-
-        function renderContent() {
-            // 1. Render Subjects List
-            const coreList = document.getElementById('core-list');
-            const appliedList = document.getElementById('applied-list');
-            
-            // Clear lists
-            coreList.innerHTML = '';
-            appliedList.innerHTML = '';
-
-            CLASS_DATA.subjects.forEach(sub => {
-                const card = document.createElement('div');
-                card.className = 'bg-card p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 flex justify-between items-center active:scale-95 transition cursor-pointer';
-                card.onclick = () => openSubjectDetails(sub.id);
-                
-                // Color coding based on type
-                const iconColor = sub.type === 'core' ? 'text-primary' : 'text-secondary';
-                
-                card.innerHTML = `
-                    <div class="flex items-center gap-4">
-                        <div class="w-10 h-10 rounded-full bg-gray-50 dark:bg-gray-800 flex items-center justify-center ${iconColor}">
-                            <i class="fas fa-book"></i>
-                        </div>
-                        <span class="font-bold text-sm sm:text-base">${sub.name}</span>
-                    </div>
-                    <i class="fas fa-chevron-right opacity-30"></i>
-                `;
-
-                if(sub.type === 'core') coreList.appendChild(card);
-                else appliedList.appendChild(card);
-            });
-
-            // 2. Render Updates
-            const updatesList = document.getElementById('updates-feed');
-            updatesList.innerHTML = '';
-            
-            CLASS_DATA.updates.forEach(up => {
-                const item = document.createElement('div');
-                item.className = 'bg-card p-5 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700';
-                item.innerHTML = `
-                    <div class="flex justify-between items-start mb-2">
-                        <h3 class="font-bold text-lg">${up.title}</h3>
-                        <span class="text-xs font-mono bg-primary-20 px-2 py-1 rounded text-primary">${up.date}</span>
-                    </div>
-                    <p class="opacity-70 text-sm leading-relaxed">${up.text}</p>
-                `;
-                updatesList.appendChild(item);
-            });
-        }
-
-        // --- SUBJECT DETAIL LOGIC ---
         
-        let currentSubject = null;
+        // --- ADMIN UID CONFIGURATION ---
+        // Once you create the admin user (e.g., admin@j1bstem.edu / admin123) in Firebase,
+        // sign in and check the console (or Firebase Auth tab) for the UID. 
+        // Replace the placeholder UID below with the actual UID of your admin user.
+        // The first user you create with the default credentials will be the admin.
+        const ADMIN_UIDS = []; // Will be populated when the admin signs in for the first time
+        
+        // --- FIREBASE INITIALIZATION ---
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        
+        // Global state for user and admin status
+        let currentUser = null;
+        let isAdmin = false;
 
-        function openSubjectDetails(id) {
-            currentSubject = CLASS_DATA.subjects.find(s => s.id === id);
-            if(!currentSubject) return;
+        // --- UTILITY FUNCTIONS ---
 
-            // Populate Info
-            document.getElementById('detail-title').innerText = currentSubject.name;
-            document.getElementById('detail-category').innerText = currentSubject.type === 'core' ? 'Core Subject' : 'Specialized Subject';
-            document.getElementById('detail-description').innerText = currentSubject.description || "No description available.";
-
-            // Populate Lessons
-            const lessonContainer = document.getElementById('content-lessons');
-            lessonContainer.innerHTML = '';
-            if(currentSubject.lessons && currentSubject.lessons.length > 0) {
-                currentSubject.lessons.forEach(l => {
-                    const lCard = document.createElement('a');
-                    lCard.href = l.link;
-                    lCard.className = 'block bg-card p-4 rounded-xl border border-gray-100 dark:border-gray-700 flex items-center gap-3 active:bg-gray-50 dark:active:bg-gray-800';
-                    lCard.innerHTML = `<i class="fas fa-file-alt text-secondary"></i> <span class="font-bold text-sm underline decoration-primary decoration-2">${l.title}</span>`;
-                    lessonContainer.appendChild(lCard);
-                });
-            } else {
-                lessonContainer.innerHTML = `<div class="text-center opacity-50 py-10"><i class="fas fa-folder-open mb-2 block"></i>No lessons uploaded yet</div>`;
+        /**
+         * Shows a modal overlay by updating its CSS classes.
+         * @param {string} id - The ID of the modal element.
+         */
+        window.showModal = function(id) {
+            const modal = document.getElementById(id);
+            if (modal) {
+                modal.classList.remove('opacity-0', 'pointer-events-none');
+                modal.querySelector('div').classList.remove('scale-95');
+                modal.querySelector('div').classList.add('scale-100');
             }
+        }
 
-            // Populate Activities
-            const activityContainer = document.getElementById('content-activities');
-            activityContainer.innerHTML = '';
-            if(currentSubject.activities && currentSubject.activities.length > 0) {
-                currentSubject.activities.forEach(a => {
-                    const aCard = document.createElement('div');
-                    aCard.className = 'bg-card p-4 rounded-xl border-l-4 border-primary shadow-sm';
-                    aCard.innerHTML = `
-                        <div class="font-bold text-sm">${a.title}</div>
-                        <div class="text-xs opacity-60 mt-1 uppercase tracking-wide">${a.status}</div>
-                    `;
-                    activityContainer.appendChild(aCard);
-                });
-            } else {
-                activityContainer.innerHTML = `<div class="text-center opacity-50 py-10"><i class="fas fa-coffee mb-2 block"></i>No pending activities</div>`;
+        /**
+         * Hides a modal overlay by updating its CSS classes.
+         * @param {string} id - The ID of the modal element.
+         */
+        window.hideModal = function(id) {
+            const modal = document.getElementById(id);
+            if (modal) {
+                modal.querySelector('div').classList.add('scale-95');
+                modal.querySelector('div').classList.remove('scale-100');
+                modal.classList.add('opacity-0', 'pointer-events-none');
             }
-
-            // Switch Views
-            document.getElementById('view-subjects').style.display = 'none';
-            document.getElementById('view-details').classList.add('active');
+        }
+        
+        /**
+         * Renders the authentication UI (Login button or User status/Logout).
+         */
+        function renderAuthUI() {
+            const authUi = document.getElementById('auth-ui');
+            authUi.innerHTML = ''; // Clear existing UI
             
-            // Reset to overview tab
-            switchSubTab('overview');
-        }
-
-        function closeDetails() {
-            document.getElementById('view-details').classList.remove('active');
-            document.getElementById('view-subjects').style.display = 'block';
-            document.getElementById('view-subjects').classList.add('active'); // re-trigger anim
-        }
-
-        function switchSubTab(tabName) {
-            // Update Tab UI
-            document.querySelectorAll('.sub-tab').forEach(t => t.classList.remove('active'));
-            document.getElementById(`tab-${tabName}`).classList.add('active');
-
-            // Show Content
-            document.querySelectorAll('.sub-content').forEach(c => c.classList.add('hidden'));
-            document.getElementById(`content-${tabName}`).classList.remove('hidden');
-        }
-
-
-        // --- GENERIC VIEW SWITCHER ---
-        function switchView(viewId) {
-            // Handle bottom nav active states
-            document.querySelectorAll('.nav-btn').forEach(btn => {
-                if(btn.dataset.target === viewId) {
-                    btn.classList.add('text-primary', 'opacity-100');
-                    btn.classList.remove('opacity-60');
+            if (currentUser) {
+                const userElement = document.createElement('div');
+                userElement.className = 'text-right';
+                
+                let userStatus = '';
+                if (isAdmin) {
+                    userStatus = `<span class="inline-flex items-center px-3 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-600">
+                                    <i data-lucide="shield-check" class="w-3 h-3 mr-1"></i> ADMIN
+                                  </span>`;
                 } else {
-                    btn.classList.remove('text-primary', 'opacity-100');
-                    btn.classList.add('opacity-60');
+                    userStatus = `<span class="inline-flex items-center px-3 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-600">
+                                    VIEWER
+                                  </span>`;
                 }
-            });
 
-            // Logic: if viewId is 'subjects', ensure we show the list, not details
-            if(viewId === 'subjects') {
-                document.getElementById('view-details').classList.remove('active');
+                userElement.innerHTML = `
+                    <p class="text-xs text-gray-500 truncate">${currentUser.email || 'Anonymous User'}</p>
+                    ${userStatus}
+                    <button id="logout-btn" class="text-xs text-indigo-500 hover:text-indigo-700 transition-colors mt-1" onclick="handleLogout()">Log out</button>
+                `;
+                authUi.appendChild(userElement);
+                
+                // Show/hide admin buttons
+                document.getElementById('add-announcement-btn').classList.toggle('hidden', !isAdmin);
+                document.getElementById('add-subject-btn').classList.toggle('hidden', !isAdmin);
+                
+            } else {
+                const loginButton = document.createElement('button');
+                loginButton.id = 'login-trigger';
+                loginButton.className = 'px-4 py-2 text-sm font-medium bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition-colors';
+                loginButton.textContent = 'Admin Login';
+                loginButton.onclick = () => showModal('login-modal');
+                authUi.appendChild(loginButton);
+                
+                // Hide admin buttons
+                document.getElementById('add-announcement-btn').classList.add('hidden');
+                document.getElementById('add-subject-btn').classList.add('hidden');
             }
-
-            // Switch Sections
-            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
-            document.getElementById(`view-${viewId}`).classList.add('active');
+            
+            // Re-render Lucide icons
+            lucide.createIcons();
         }
 
-        // --- THEME & DARK MODE LOGIC ---
-         const themes = {
-            teal: { primary: '45 212 191', secondary: '6 182 212', label: 'Teal & Cyan' }, 
-            purple: { primary: '168 85 247', secondary: '37 99 235', label: 'Purple & Blue' },
-            mono: { primary: '15 23 42', secondary: '100 116 139', darkPrimary: '255 255 255', label: 'Black & White' },
-            gold: { primary: '217 119 6', secondary: '71 85 105', label: 'Gold & Slate' },
-            red: { primary: '244 63 94', secondary: '236 72 153', label: 'Reddish Pink' }
-        };
 
-        const html = document.documentElement;
+        // --- FIREBASE AUTHENTICATION HANDLERS ---
+        
+        /**
+         * Handles user login with email and password.
+         */
+        async function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            const errorElement = document.getElementById('login-error-message');
+            errorElement.classList.add('hidden');
 
-        function setTheme(themeName) {
-            const theme = themes[themeName];
-            html.style.setProperty('--primary', theme.primary);
-            html.style.setProperty('--secondary', theme.secondary);
-            
-            if(themeName === 'mono' && html.classList.contains('dark')) {
-                html.style.setProperty('--primary', theme.darkPrimary);
-            } else if (themeName === 'mono') {
-                 html.style.setProperty('--primary', theme.primary);
+            try {
+                // Sign in with email and password
+                await signInWithEmailAndPassword(auth, email, password);
+                
+                // If sign-in is successful, onAuthStateChanged will handle the rest.
+                hideModal('login-modal');
+            } catch (error) {
+                // Handle errors like wrong password or email
+                errorElement.textContent = `Login Failed: ${error.message}`;
+                errorElement.classList.remove('hidden');
+                console.error("Login error:", error);
             }
-
-            localStorage.setItem('tracker_theme', themeName);
-            document.getElementById('theme-modal').classList.add('hidden');
         }
-
-        function toggleThemeModal() {
-            const modal = document.getElementById('theme-modal');
-            const container = document.getElementById('theme-options');
-            modal.classList.toggle('hidden');
-            
-            // Build options dynamically
-            if(container.children.length === 0) {
-                Object.keys(themes).forEach(key => {
-                    const t = themes[key];
-                    const btn = document.createElement('button');
-                    btn.className = 'flex items-center p-3 rounded-xl border border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 w-full text-left';
-                    btn.onclick = () => setTheme(key);
-                    btn.innerHTML = `
-                        <div class="w-6 h-6 rounded-full mr-3" style="background: rgb(${t.primary})"></div>
-                        <span class="font-bold text-sm">${t.label}</span>
-                    `;
-                    container.appendChild(btn);
-                });
+        
+        /**
+         * Handles user logout.
+         */
+        window.handleLogout = async function() {
+            try {
+                await signOut(auth);
+            } catch (error) {
+                console.error("Logout error:", error);
             }
         }
 
-        // Dark Mode
-        document.getElementById('dark-mode-toggle').addEventListener('click', () => {
-            html.classList.toggle('dark');
-            const isDark = html.classList.contains('dark');
-            localStorage.setItem('color-mode', isDark ? 'dark' : 'light');
+        /**
+         * Sets up the real-time listener for authentication status.
+         */
+        onAuthStateChanged(auth, (user) => {
+            currentUser = user;
+            isAdmin = false;
             
-            document.getElementById('dark-mode-icon').className = isDark ? 'fas fa-sun text-secondary text-lg' : 'fas fa-moon text-secondary text-lg';
+            // If user is logged in, check if their UID is an admin
+            if (user) {
+                // NOTE: This is where we check if the signed-in user's UID is in our ADMIN_UIDS array.
+                // For the first time, if they are the admin, we add them to the array for future use.
+                // In a production environment, you would use Firestore security rules for this.
+                if (ADMIN_UIDS.includes(user.uid) || ADMIN_UIDS.length === 0) {
+                    isAdmin = true;
+                    if (!ADMIN_UIDS.includes(user.uid)) {
+                        ADMIN_UIDS.push(user.uid); // Add the first logged-in user as Admin if list is empty
+                        console.log("Welcome Admin! Your UID has been registered for this session:", user.uid);
+                    }
+                }
+            }
             
-            // Re-apply theme for mono fix
-            const currentTheme = localStorage.getItem('tracker_theme') || 'teal';
-            setTheme(currentTheme);
+            // Render the UI based on the new auth state
+            renderAuthUI();
         });
 
-        // Initialize
-        window.onload = () => {
-            renderContent();
-            
-            // Load Settings
-            const savedTheme = localStorage.getItem('tracker_theme') || 'teal';
-            setTheme(savedTheme);
-            
-            const savedMode = localStorage.getItem('color-mode');
-            if (savedMode === 'dark' || (!savedMode && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-                html.classList.add('dark');
-                document.getElementById('dark-mode-icon').className = 'fas fa-sun text-secondary text-lg';
+
+        // --- FIRESTORE DATA RENDERERS ---
+
+        /**
+         * Renders the list of subjects.
+         * @param {Array} subjects - Array of subject objects.
+         */
+        function renderSubjects(subjects) {
+            const subjectList = document.getElementById('subject-list');
+            subjectList.innerHTML = '';
+            document.getElementById('loading-subjects').classList.add('hidden');
+
+            if (subjects.length === 0) {
+                subjectList.innerHTML = `<p class="text-gray-500 text-center py-4">No subjects added yet.</p>`;
+                return;
             }
 
-            switchView('overview');
-        };
+            subjects.forEach(subject => {
+                const item = document.createElement('div');
+                item.className = 'p-3 border border-gray-100 bg-gray-50 rounded-lg shadow-sm';
+                item.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <h4 class="text-lg font-semibold text-gray-800">${subject.name}</h4>
+                        <div class="flex space-x-2 ${isAdmin ? '' : 'hidden'}">
+                            <button class="text-indigo-500 hover:text-indigo-700" onclick="editSubject('${subject.id}', '${subject.name}', '${subject.teacher}', '${subject.status}')">
+                                <i data-lucide="edit-3" class="w-4 h-4"></i>
+                            </button>
+                            <button class="text-red-500 hover:text-red-700" onclick="deleteSubject('${subject.id}', '${subject.name}')">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-600 mt-1">Teacher: ${subject.teacher}</p>
+                    <p class="text-sm font-medium text-indigo-500 mt-2">Status: ${subject.status}</p>
+                `;
+                subjectList.appendChild(item);
+            });
+            lucide.createIcons();
+        }
+
+        /**
+         * Renders the list of announcements.
+         * @param {Array} announcements - Array of announcement objects.
+         */
+        function renderAnnouncements(announcements) {
+            const announcementList = document.getElementById('announcement-list');
+            announcementList.innerHTML = '';
+            document.getElementById('loading-announcements').classList.add('hidden');
+
+            if (announcements.length === 0) {
+                announcementList.innerHTML = `<p class="text-gray-500 text-center py-4">No announcements posted yet.</p>`;
+                return;
+            }
+
+            announcements.forEach(announcement => {
+                const date = announcement.timestamp ? new Date(announcement.timestamp.seconds * 1000).toLocaleDateString() : 'N/A';
+                
+                const item = document.createElement('div');
+                item.className = 'p-4 bg-yellow-50 border-l-4 border-yellow-500 rounded-lg shadow-sm';
+                item.innerHTML = `
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <h4 class="text-xl font-bold text-gray-800">${announcement.title}</h4>
+                            <p class="text-xs text-gray-500 mt-1">Posted: ${date}</p>
+                        </div>
+                        <div class="flex space-x-2 ${isAdmin ? '' : 'hidden'}">
+                            <button class="text-indigo-500 hover:text-indigo-700" onclick="editAnnouncement('${announcement.id}', '${announcement.title}', \`${announcement.content.replace(/'/g, "\\'")}\`)">
+                                <i data-lucide="edit-3" class="w-4 h-4"></i>
+                            </button>
+                            <button class="text-red-500 hover:text-red-700" onclick="deleteAnnouncement('${announcement.id}', '${announcement.title}')">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-700 whitespace-pre-wrap mt-3">${announcement.content}</p>
+                `;
+                announcementList.appendChild(item);
+            });
+            lucide.createIcons();
+        }
+
+
+        // --- FIRESTORE CRUD HANDLERS (ADMIN ONLY) ---
+        
+        /**
+         * Prepares the subject modal for editing an existing subject.
+         */
+        window.editSubject = function(id, name, teacher, status) {
+            if (!isAdmin) return;
+            document.getElementById('subject-id').value = id;
+            document.getElementById('subject-name').value = name;
+            document.getElementById('subject-teacher').value = teacher;
+            document.getElementById('subject-status').value = status;
+            document.getElementById('subject-modal-title').textContent = 'Edit Subject';
+            showModal('subject-modal');
+        }
+
+        /**
+         * Deletes a subject document from Firestore.
+         */
+        window.deleteSubject = async function(id, name) {
+            if (!isAdmin) return;
+            if (confirm(`Are you sure you want to delete the subject: ${name}?`)) {
+                try {
+                    await deleteDoc(doc(db, "subjects", id));
+                    console.log("Subject successfully deleted!");
+                } catch (e) {
+                    console.error("Error deleting subject: ", e);
+                }
+            }
+        }
+        
+        /**
+         * Prepares the announcement modal for editing an existing announcement.
+         */
+        window.editAnnouncement = function(id, title, content) {
+            if (!isAdmin) return;
+            document.getElementById('announcement-id').value = id;
+            document.getElementById('announcement-title').value = title;
+            // Use decodeURIComponent for content that might have been escaped
+            document.getElementById('announcement-content').value = content;
+            document.getElementById('announcement-modal-title').textContent = 'Edit Announcement';
+            showModal('announcement-modal');
+        }
+
+        /**
+         * Deletes an announcement document from Firestore.
+         */
+        window.deleteAnnouncement = async function(id, title) {
+            if (!isAdmin) return;
+            if (confirm(`Are you sure you want to delete the announcement: ${title}?`)) {
+                try {
+                    await deleteDoc(doc(db, "announcements", id));
+                    console.log("Announcement successfully deleted!");
+                } catch (e) {
+                    console.error("Error deleting announcement: ", e);
+                }
+            }
+        }
+
+        /**
+         * Handles saving (add/edit) for subjects.
+         */
+        document.getElementById('subject-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!isAdmin) return;
+            
+            const id = document.getElementById('subject-id').value;
+            const name = document.getElementById('subject-name').value;
+            const teacher = document.getElementById('subject-teacher').value;
+            const status = document.getElementById('subject-status').value;
+
+            const subjectData = {
+                name,
+                teacher,
+                status
+            };
+
+            try {
+                if (id) {
+                    // Update existing subject
+                    await updateDoc(doc(db, "subjects", id), subjectData);
+                    console.log("Subject updated successfully!");
+                } else {
+                    // Add new subject
+                    await addDoc(collection(db, "subjects"), subjectData);
+                    console.log("New subject added successfully!");
+                }
+                hideModal('subject-modal');
+                e.target.reset(); // Clear form
+            } catch (e) {
+                console.error("Error saving subject: ", e);
+            }
+        });
+
+        /**
+         * Handles saving (add/edit) for announcements.
+         */
+        document.getElementById('announcement-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!isAdmin) return;
+            
+            const id = document.getElementById('announcement-id').value;
+            const title = document.getElementById('announcement-title').value;
+            const content = document.getElementById('announcement-content').value;
+
+            const announcementData = {
+                title,
+                content,
+                timestamp: serverTimestamp() // Use Firestore's server timestamp
+            };
+
+            try {
+                if (id) {
+                    // Update existing announcement
+                    await updateDoc(doc(db, "announcements", id), announcementData);
+                    console.log("Announcement updated successfully!");
+                } else {
+                    // Add new announcement
+                    await addDoc(collection(db, "announcements"), announcementData);
+                    console.log("New announcement added successfully!");
+                }
+                hideModal('announcement-modal');
+                e.target.reset(); // Clear form
+            } catch (e) {
+                console.error("Error saving announcement: ", e);
+            }
+        });
+        
+        // Reset modals when they are opened for a new item
+        document.getElementById('add-announcement-btn').addEventListener('click', () => {
+            document.getElementById('announcement-form').reset();
+            document.getElementById('announcement-id').value = '';
+            document.getElementById('announcement-modal-title').textContent = 'Add New Announcement';
+        });
+        
+        document.getElementById('add-subject-btn').addEventListener('click', () => {
+            document.getElementById('subject-form').reset();
+            document.getElementById('subject-id').value = '';
+            document.getElementById('subject-modal-title').textContent = 'Add New Subject';
+        });
+
+        // --- FIRESTORE REAL-TIME LISTENERS ---
+        
+        // 1. Listen for Subjects changes
+        const subjectsQuery = collection(db, "subjects");
+        onSnapshot(subjectsQuery, (snapshot) => {
+            const subjects = [];
+            snapshot.forEach((doc) => {
+                subjects.push({ id: doc.id, ...doc.data() });
+            });
+            // NOTE: Sorting is done in memory to avoid needing Firestore indexes.
+            subjects.sort((a, b) => a.name.localeCompare(b.name));
+            renderSubjects(subjects);
+        }, (error) => {
+            console.error("Error fetching subjects:", error);
+            document.getElementById('loading-subjects').textContent = 'Failed to load subjects.';
+        });
+
+        // 2. Listen for Announcements changes
+        // Order by timestamp descending (newest first)
+        const announcementsQuery = query(collection(db, "announcements"));
+        onSnapshot(announcementsQuery, (snapshot) => {
+            const announcements = [];
+            snapshot.forEach((doc) => {
+                announcements.push({ id: doc.id, ...doc.data() });
+            });
+            // NOTE: Sorting is done in memory to avoid needing Firestore indexes.
+            announcements.sort((a, b) => {
+                const timeA = a.timestamp ? a.timestamp.seconds : 0;
+                const timeB = b.timestamp ? b.timestamp.seconds : 0;
+                return timeB - timeA; // Descending order
+            });
+            renderAnnouncements(announcements);
+        }, (error) => {
+            console.error("Error fetching announcements:", error);
+            document.getElementById('loading-announcements').textContent = 'Failed to load announcements.';
+        });
+        
+        // --- INITIAL SETUP ---
+        document.getElementById('login-form').addEventListener('submit', handleLogin);
+        lucide.createIcons(); // Initialize Lucide icons on load
 
     </script>
 </body>
 </html>
-
 
